@@ -3,16 +3,30 @@ package cpc2;
 import java.awt.Color;
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.util.Random;
 
 import javax.imageio.ImageIO;
 
 public class Cpc {
 	
-	String impath = "C:\\Users\\emmett\\Desktop\\source - texture\\compress\\memnarch.jpg";
+	//String impath = "C:\\Users\\emmett\\Desktop\\source - texture\\compress\\memnarch.jpg";
+	String impath = "C:\\Users\\ecoughlin7190\\Desktop\\abc.png";
 	BufferedImage impo;
 	
 	public static void main(String[] args) {
 		new Cpc();
+	}
+	
+	public int efunc(int y, int x){
+		return((int)Math.abs(Math.cos(x)+Math.cos(y)+Math.sin(x)+Math.sin(y)));
+	}
+	
+	public int sdfunc(int y, int x){
+		return (((int)(0.125*(x+(int)(x/8)))+(int)(0.125*(y+(int)(y/8))))%2);
+	}
+	
+	public int func(int y, int x){
+		return((int)( (y*Math.E)*(x*Math.PI)-(y*x) )%2);
 	}
 	
 	public Cpc(){
@@ -20,6 +34,7 @@ public class Cpc {
 			impo = ImageIO.read(new File(impath));
 		}catch(Exception ex){}
 		impo = resample(impo);
+		//impo = ttest();
 		save(impo);
 	}
 	
@@ -55,26 +70,9 @@ public class Cpc {
 								for(int x=0;x<8;x++){
 									int sx = px+x;
 									int sy = py+y;
-									int rs = (((int)(0.125*(sx+(int)(sx/8)))+(int)(0.125*(sy+(int)(sy/8))))%2)*255;
+									int rs = func(sy,sx)*255;
 									int comp = cspace[(ty*8)+y][(tx*8)+x][c];
-									fit += ((comp-rs)/2);
-									/*if(rs>128){
-										if(comp>128){
-											fit += (128 - Math.abs(rs-comp));
-										}else{
-											fit += (Math.abs(rs-comp)-128);
-										}
-									}else{
-										if(comp>128){
-											fit += (Math.abs(rs-comp)-255);
-										}else{
-											fit += (255 - Math.abs(rs-comp));
-										}
-									}*/
-									/*System.out.println("rs: "+rs);
-									System.out.println("cp: "+comp);
-									System.out.println("ft: "+((128-(rs+comp)))*-1);
-									System.out.println();*/
+									fit += (128-Math.abs(comp-rs));
 								}
 							}
 							fit = fit/(res*res);
@@ -82,20 +80,21 @@ public class Cpc {
 						}
 					}
 				}
+				
+				
+
 				for(int y=0;y<8;y++){
 					for(int x=0;x<8;x++){
 						int[] tot = new int[3];
 						for(int c=0;c<3;c++){
+							tot[c] = 128;
 							for(int p0=0;p0<res;p0++){
 								for(int p1=0;p1<res;p1++){
-									int sx = p0+x;
-									int sy = p1+y;
-									int sec = matrix[ty][tx][p0][p1][c];
-									sec -= (int)(Math.signum(sec)*(sec-128));
-									tot[c] += ( (((int)(0.125*(sx+(int)(sx/8)))+(int)(0.125*(sy+(int)(sy/8))))%2) * sec * 4);
+									int sy = p0+y;
+									int sx = p1+x;
+									tot[c] += ( (func(sy,sx)*2-1) * (matrix[ty][tx][p0][p1][c]));
 								}
 							}
-							tot[c] = tot[c]/(res*res);
 							if(tot[c]<0){
 								tot[c] = 0;
 							}
@@ -109,6 +108,18 @@ public class Cpc {
 				}
 			}
 		}
+		for(int y=0;y<8;y++){
+			String a = "";
+			for(int x=0;x<8;x++){
+				String t = matrix[0][0][y][x][1]+"";
+				int u = t.length();
+				for(int i=0;i<3-u;i++){
+					t+= " ";
+				}
+				a += t+" ";
+			}
+			System.out.println(a);
+		}
 		return out;
 	}
 	
@@ -116,7 +127,7 @@ public class Cpc {
 		BufferedImage b = new BufferedImage(64,64,BufferedImage.TYPE_INT_RGB);
 		for(int y=0;y<64;y++){
 			for(int x=0;x<64;x++){
-				int rs = (((int)(0.125*(x+(int)(x/8)))+(int)(0.125*(y+(int)(y/8))))%2)*255;
+				int rs = func(y,x)*255;
 				b.setRGB(x, y, rs);
 			}
 		}
