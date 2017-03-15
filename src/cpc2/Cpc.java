@@ -57,7 +57,7 @@ public class Cpc {
 									int sy = py+y;
 									int rs = (((int)(0.125*(sx+(int)(sx/8)))+(int)(0.125*(sy+(int)(sy/8))))%2)*255;
 									int comp = cspace[(ty*8)+y][(tx*8)+x][c];
-									fit += (Math.signum(comp-rs)*128)-(comp-rs);
+									fit += ((comp-rs)/2);
 									/*if(rs>128){
 										if(comp>128){
 											fit += (128 - Math.abs(rs-comp));
@@ -90,7 +90,9 @@ public class Cpc {
 								for(int p1=0;p1<res;p1++){
 									int sx = p0+x;
 									int sy = p1+y;
-									tot[c] += ( (((int)(0.125*(sx+(int)(sx/8)))+(int)(0.125*(sy+(int)(sy/8))))%2) * matrix[ty][tx][p0][p1][c] * 8);
+									int sec = matrix[ty][tx][p0][p1][c];
+									sec -= (int)(Math.signum(sec)*(sec-128));
+									tot[c] += ( (((int)(0.125*(sx+(int)(sx/8)))+(int)(0.125*(sy+(int)(sy/8))))%2) * sec * 4);
 								}
 							}
 							tot[c] = tot[c]/(res*res);
