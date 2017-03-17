@@ -9,7 +9,7 @@ import javax.imageio.ImageIO;
 
 public class Cpc {
 	
-	String impath = "C:\\Users\\emmett\\Desktop\\source - texture\\compress\\bleaf.jpg";
+	String impath = "C:\\Users\\emmett\\Desktop\\source - texture\\compress\\d.png";
 	//String impath = "C:\\Users\\ecoughlin7190\\Desktop\\abc.png";
 	BufferedImage impo;
 	
@@ -29,19 +29,25 @@ public class Cpc {
 		return(int)(( ((y*Math.PI)/(32-(Math.floor(y/8)*4))) * ((x*Math.PI)/(32-(Math.floor(x/8)*4)))  )%2);
 	}
 	
-	public int func(int y, int x){
-		/*if(y<8 && x<8){
-			return 0;
-		}*/
+	public int gfunc(int y, int x){
+		//if(y<8 && x<8){
+		//	return 0;
+		//}
 		return(int)(( ((y*Math.PI)/(8-(y/8))) * ((x*Math.PI)/(8-(x/8)))  )%2);
+	}
+	
+	public double func(int y, int x){
+		int n = y/8+1;
+		int m = x/8+1;
+		return (( Math.cos(((2*n+1)*(2*y+1)*Math.PI)/(n*4)) * Math.cos(((2*m+1)*(2*x+1)*Math.PI)/(m*4)) )/2+0.5);
 	}
 	
 	public Cpc(){
 		try{
 			impo = ImageIO.read(new File(impath));
 		}catch(Exception ex){}
-		impo = resample(impo);
-		//impo = ttest();
+		//impo = resample(impo);
+		impo = ttest();
 		save(impo);
 	}
 	
@@ -77,7 +83,7 @@ public class Cpc {
 								for(int x=0;x<8;x++){
 									int sx = px+x;
 									int sy = py+y;
-									int rs = func(sy,sx)*255;
+									double rs = func(sy,sx)*255;
 									int comp = cspace[(ty*8)+y][(tx*8)+x][c];
 									fit += (128-Math.abs(comp-rs));
 								}
@@ -134,8 +140,8 @@ public class Cpc {
 		BufferedImage b = new BufferedImage(64,64,BufferedImage.TYPE_INT_RGB);
 		for(int y=0;y<64;y++){
 			for(int x=0;x<64;x++){
-				int rs = func(y,x)*255;
-				b.setRGB(x, y, rs);
+				double rs = func(y,x)*(Color.RED.getRGB());
+				b.setRGB(x, y, (int)rs);
 			}
 		}
 		return b;
