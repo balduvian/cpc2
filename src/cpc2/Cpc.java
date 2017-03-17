@@ -9,8 +9,8 @@ import javax.imageio.ImageIO;
 
 public class Cpc {
 	
-	//String impath = "C:\\Users\\emmett\\Desktop\\source - texture\\compress\\memnarch.jpg";
-	String impath = "C:\\Users\\ecoughlin7190\\Desktop\\abc.png";
+	String impath = "C:\\Users\\emmett\\Desktop\\source - texture\\compress\\bleaf.jpg";
+	//String impath = "C:\\Users\\ecoughlin7190\\Desktop\\abc.png";
 	BufferedImage impo;
 	
 	public static void main(String[] args) {
@@ -25,8 +25,15 @@ public class Cpc {
 		return (((int)(0.125*(x+(int)(x/8)))+(int)(0.125*(y+(int)(y/8))))%2);
 	}
 	
+	public int afunc(int y, int x){
+		return(int)(( ((y*Math.PI)/(32-(Math.floor(y/8)*4))) * ((x*Math.PI)/(32-(Math.floor(x/8)*4)))  )%2);
+	}
+	
 	public int func(int y, int x){
-		return((int)( (y*Math.E)*(x*Math.PI)-(y*x) )%2);
+		/*if(y<8 && x<8){
+			return 0;
+		}*/
+		return(int)(( ((y*Math.PI)/(8-(y/8))) * ((x*Math.PI)/(8-(x/8)))  )%2);
 	}
 	
 	public Cpc(){
@@ -92,7 +99,7 @@ public class Cpc {
 								for(int p1=0;p1<res;p1++){
 									int sy = p0+y;
 									int sx = p1+x;
-									tot[c] += ( (func(sy,sx)*2-1) * (matrix[ty][tx][p0][p1][c]));
+									tot[c] += ( (func(sy,sx)*2-1) * (matrix[ty][tx][p0][p1][c]) );
 								}
 							}
 							if(tot[c]<0){
@@ -111,7 +118,7 @@ public class Cpc {
 		for(int y=0;y<8;y++){
 			String a = "";
 			for(int x=0;x<8;x++){
-				String t = matrix[0][0][y][x][1]+"";
+				String t = matrix[0][0][y][x][2]+"";
 				int u = t.length();
 				for(int i=0;i<3-u;i++){
 					t+= " ";
