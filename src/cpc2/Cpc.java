@@ -9,8 +9,8 @@ import javax.imageio.ImageIO;
 
 public class Cpc {
 	
-	String impath = "C:\\Users\\emmett\\Desktop\\source - texture\\compress\\d.png";
-	//String impath = "C:\\Users\\ecoughlin7190\\Desktop\\abc.png";
+	//String impath = "C:\\Users\\emmett\\Desktop\\source - texture\\compress\\d.png";
+	String impath = "C:\\Users\\ecoughlin7190\\Desktop\\green.jpg";
 	BufferedImage impo;
 	
 	public static void main(String[] args) {
@@ -25,30 +25,34 @@ public class Cpc {
 		return (((int)(0.125*(x+(int)(x/8)))+(int)(0.125*(y+(int)(y/8))))%2);
 	}
 	
-	public int afunc(int y, int x){
-		return(int)(( ((y*Math.PI)/(32-(Math.floor(y/8)*4))) * ((x*Math.PI)/(32-(Math.floor(x/8)*4)))  )%2);
-	}
-	
-	public int gfunc(int y, int x){
-		//if(y<8 && x<8){
-		//	return 0;
-		//}
-		return(int)(( ((y*Math.PI)/(8-(y/8))) * ((x*Math.PI)/(8-(x/8)))  )%2);
+	public double dfunc(int y, int x){
+		return (( ((y*Math.PI)/(32-(Math.floor(y/8)*4))) * ((x*Math.PI)/(32-(Math.floor(x/8)*4)))  )%2);
 	}
 	
 	public double func(int y, int x){
-		int n = y/8+1;
-		int m = x/8+1;
-		return (( Math.cos(((2*n+1)*(2*y+1)*Math.PI)/(n*4)) * Math.cos(((2*m+1)*(2*x+1)*Math.PI)/(m*4)) )/2+0.5);
+		//if(y<8 && x<8){
+		//	return 0;
+		//}
+		return (int) (( ((y*Math.PI)/(8-(y/8))) * ((x*Math.PI)/(8-(x/8)))  )%2);
 	}
+	
+	/*public double func(int y, int x){
+		int n = y/8;
+		int m = x/8;
+		return (( Math.cos(((2*n+1)*(2*y+1)*Math.PI)/(8*4)) * Math.cos(((2*m+1)*(2*x+1)*Math.PI)/(8*4)) )/2+0.5);
+	}*/
 	
 	public Cpc(){
 		try{
 			impo = ImageIO.read(new File(impath));
 		}catch(Exception ex){}
-		//impo = resample(impo);
-		impo = ttest();
+		impo = resample(impo);
+		//impo = ttest();
 		save(impo);
+	}
+	
+	public double dif(double a, double b){
+		return (0.5-Math.abs(a-b))*2;
 	}
 	
 	public int[][][] tricolore(BufferedImage b){
@@ -71,21 +75,21 @@ public class Cpc {
 		int wac = (int)Math.ceil(b.getWidth()/8);
 		int hac = (int)Math.ceil(b.getHeight()/8);
 		BufferedImage out = new BufferedImage(wac*8,hac*8,BufferedImage.TYPE_INT_RGB);
-		int[][][][][] matrix = new int[hac][wac][8][8][3];
+		double[][][][][] matrix = new double[hac][wac][8][8][3];
 		int[][][] cspace = tricolore(b);
 		for(int ty=0;ty<hac;ty++){
 			for(int tx=0;tx<wac;tx++){
 				for(int c=0;c<3;c++){
 					for(int py=0;py<res;py++){
 						for(int px=0;px<res;px++){
-							int fit = 0;
+							double fit = 0;
 							for(int y=0;y<8;y++){
 								for(int x=0;x<8;x++){
 									int sx = px+x;
 									int sy = py+y;
-									double rs = func(sy,sx)*255;
-									int comp = cspace[(ty*8)+y][(tx*8)+x][c];
-									fit += (128-Math.abs(comp-rs));
+									double rs = func(sy,sx);
+									double comp = (cspace[(ty*8)+y][(tx*8)+x][c]/255.0);
+									fit += dif(comp,rs);
 								}
 							}
 							fit = fit/(res*res);
@@ -98,24 +102,27 @@ public class Cpc {
 
 				for(int y=0;y<8;y++){
 					for(int x=0;x<8;x++){
-						int[] tot = new int[3];
+						double[] tot = new double[3];
 						for(int c=0;c<3;c++){
 							tot[c] = 128;
 							for(int p0=0;p0<res;p0++){
 								for(int p1=0;p1<res;p1++){
 									int sy = p0+y;
 									int sx = p1+x;
-									tot[c] += ( (func(sy,sx)*2-1) * (matrix[ty][tx][p0][p1][c]) );
+									double ad = ( ((func(sy,sx)-0.5)*2) * matrix[ty][tx][p0][p1][c] * 128);
+									tot[c] += ad;
+									//System.out.println(ad);
 								}
+							}
+							//System.out.println(tot[c]);
+							if(tot[c]>255){
+								tot[c] = 255;
 							}
 							if(tot[c]<0){
 								tot[c] = 0;
 							}
-							if(tot[c]>255){
-								tot[c] = 255;
-							}
 						}
-						int cn = new Color(tot[0],tot[1],tot[2]).getRGB();
+						int cn = new Color((int)tot[0],(int)tot[1],(int)tot[2]).getRGB();
 						out.setRGB((tx*8)+x, (ty*8)+y, cn);
 					}
 				}
